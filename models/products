@@ -1,0 +1,59 @@
+const mongoose=require("mongoose")
+const productSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true, 
+    trim: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+  status: {
+    type: String,
+    required: true,
+    enum: {
+      values: ["in-stock", "out_of_stock", "discontinued"],
+      message: "status can't be {Value}"
+    }
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+productSchema.pre('save', function (next) {
+  console.log('before saving data');
+  if (this.quantity === 0) {
+    this.status = "out_of_stock";
+  }
+  next();
+});
+productSchema.post('save', function (doc, next) {
+  next()
+})
+productSchema.methods.logger = function () {
+  
+}
+// Create a Product model using the schema
+const Product = mongoose.model('Product', productSchema);
+module.exports = Product;

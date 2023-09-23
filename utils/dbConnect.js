@@ -1,28 +1,28 @@
-const { MongoClient } = require("mongodb");
-const connectionString = process.env.Rdd;
-const client = new MongoClient(connectionString, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
 
-let dbConnection;
+const mongoose = require("mongoose");
+const colors = require("colors");
 
-module.exports = {
-  connectToServer: function (callback) {
-    client.connect(function (err, db) {
-      if (err || !db) {
-        return callback(err);
-      }
+let isConnected = false; // track the connection
 
-      dbConnection = db.db("test");
-      console.log("Successfully connected to MongoDB.");
+ module.exports.connectDB = async () => {
+  mongoose.set('strictQuery', true);
 
-      return callback();
-    });
-  },
+  if(isConnected) {
+    console.log('MongoDB is already connected');
+    return;
+  }
 
-  getDb: function () {
-    return dbConnection;
-  },
-};
+  try {
+    await mongoose.connect(process.env.Rdd, {
+      dbName: "inventory_management",
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
 
+    isConnected = true;
+
+    console.log('MongoDB connected'.red.bold)
+  } catch (error) {
+    console.log(error);
+  }
+}
